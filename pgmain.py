@@ -4,6 +4,7 @@ import pgsurface
 import pygame
 import sys
 import random
+from threading import Timer
 from pygame.locals import * #导入一些常用的函数和常量
 from sys import exit #向sys模块借一个exit函数用来退出程序
 
@@ -23,6 +24,11 @@ game_start = 0;
 score = 0;
 #鸡腿数
 chicken_cont = 0;
+
+#Version major
+V_Major = 1
+#Version minor
+V_Minor = 1
 
 #定义几个基本颜色
 white = (255,255,255)
@@ -53,7 +59,7 @@ class CPallas:
     #参数说明：
     ################################################################
     def DrawPallas(self,screen,tick):
-        self.Dynamic(tick);
+        #self.Dynamic(tick);
 
         if self.jump == 1:
             screen.blit(pallas_ball,(self.pos_x,self.pos_y));
@@ -301,17 +307,19 @@ def ResetGame():
 ################################################################
 def DrawWelcomeScreen(screen):
     pgsurface.DrawString(screen,"Jumping Pallas",35,0,0,0,300,180);
-    pgsurface.DrawString(screen,"Press Space to start and jump",16,0,0,0,310,240);
-    pgsurface.DrawString(screen,"Press A to restart",16,0,0,0,350,270);
-    pgsurface.DrawString(screen,"Press ESC to escape",16,0,0,0,330,255);
+    pgsurface.DrawString(screen,"V"+str(V_Major)+"."+str(V_Minor),16,0,0,0,390,240);
+    pgsurface.DrawString(screen,"Press Space to start and jump",16,0,0,0,310,270);
+    pgsurface.DrawString(screen,"Press A to restart",16,0,0,0,350,300);
+    pgsurface.DrawString(screen,"Press ESC to escape",16,0,0,0,330,330);
+
 ################################################################
 #   Main process
 ################################################################
 
-screen = pgsurface.InitSystem(800,600,0,"Python Tester")
+screen = pgsurface.InitSystem(800,600,0,"Jumping Pallas")
 
 topScreen = pgsurface.cTopMenu()
-cPallas = CPallas(0.08);
+cPallas = CPallas(0.06);
 ResetGame();
 
 #装入主要的图像元素
@@ -346,6 +354,7 @@ chicken_thigh = chicken_thigh.convert_alpha();
 dealycount = 0;
 
 clock = pygame.time.Clock();
+
 #########################3
 # Main loop
 while True:
@@ -353,11 +362,6 @@ while True:
     screen.fill(white)#清空窗口
     pygame.Surface.convert_alpha(screen);
     screen.set_alpha(128);
-
-
-    #时间戳监控
-    chak = clock.tick();
-    #pgsurface.DrawString(screen,"tick:" + str(chak),20,0,0,0,10,100);
 
     if (GetGameStart() == 0):
         DrawWelcomeScreen(screen);
@@ -367,6 +371,7 @@ while True:
         if (GetGameStart() == 1):
             dealycount = dealycount + 1;
             if(dealycount >= 5):
+                
                 UpdataMap();
                 SetScore(0,1);
                 dealycount = 0;
@@ -379,7 +384,11 @@ while True:
                     chicken_cont = chicken_cont + 1;
         if(GetGameStart() == 2):
             pgsurface.DrawString(screen,"Game Over",30,0,0,0,300,200);
-                
+    
+    tick = clock.tick()
+    #pgsurface.DrawString(screen,"tick:" + str(tick),20,0,0,0,100,100);
+
     DrawMap(screen);
-    cPallas.DrawPallas(screen,chak);
+    cPallas.Dynamic(tick);
+    cPallas.DrawPallas(screen,11);
     pygame.display.update()#刷新一下画面
